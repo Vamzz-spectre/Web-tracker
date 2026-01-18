@@ -1,0 +1,3399 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>💰 Money Tracker Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== VARIABLES & RESET ===== */
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #60a5fa;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --gray-dark: #475569;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            --radius: 12px;
+            --radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ===== UTILITY CLASSES ===== */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .grid { display: grid; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .text-danger { color: var(--danger); }
+        .text-success { color: var(--secondary); }
+        .text-warning { color: var(--warning); }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mb-3 { margin-bottom: 1.5rem; }
+        .mb-4 { margin-bottom: 2rem; }
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mt-3 { margin-top: 1.5rem; }
+        .mt-4 { margin-top: 2rem; }
+        .p-1 { padding: 0.5rem; }
+        .p-2 { padding: 1rem; }
+        .p-3 { padding: 1.5rem; }
+        .p-4 { padding: 2rem; }
+        .w-100 { width: 100%; }
+        .container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 1rem; }
+
+        /* ===== LAYOUT ===== */
+        .app-wrapper {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar untuk Desktop */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--card-border);
+            padding: 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            color: var(--gray);
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+        }
+
+        .nav-item i { width: 20px; }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 1.5rem;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Header */
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-left h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .header-left p {
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            border: none;
+            font-family: inherit;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--light);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-sm { padding: 8px 16px; font-size: 0.875rem; }
+        .btn-lg { padding: 14px 28px; font-size: 1rem; }
+
+        /* ===== DASHBOARD CARDS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card.balance {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-card.balance .stat-icon {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-card:not(.balance) .stat-icon {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+        }
+
+        .stat-card.income .stat-icon {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--secondary);
+        }
+
+        .stat-card.expense .stat-icon {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .stat-title {
+            font-size: 0.875rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card.balance .stat-title {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            word-break: break-all;
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-change.positive { color: var(--secondary); }
+        .stat-change.negative { color: var(--danger); }
+
+        /* ===== TRANSACTION FORM ===== */
+        .form-container {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            color: var(--light);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .type-selector {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .type-option {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--card-border);
+            border-radius: var(--radius);
+            background: transparent;
+            color: var(--light);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 54px;
+        }
+
+        .type-option.active {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .type-option.income.active {
+            border-color: var(--secondary);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .type-option.expense.active {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .quick-amounts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .quick-amount {
+            padding: 0.75rem;
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            background: transparent;
+            color: var(--light);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            font-size: 0.875rem;
+        }
+
+        .quick-amount:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: var(--primary);
+        }
+
+        /* ===== TRANSACTIONS TABLE ===== */
+        .transactions-section {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            overflow-x: auto;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .filters {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            background: transparent;
+            color: var(--gray);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .search-box {
+            position: relative;
+            max-width: 300px;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            color: var(--light);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        .transactions-table th {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--gray);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .transactions-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--card-border);
+            word-break: break-word;
+        }
+
+        .transaction-row:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .transaction-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .transaction-type.income {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--secondary);
+        }
+
+        .transaction-type.expense {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            font-size: 1rem;
+            white-space: nowrap;
+        }
+
+        .transaction-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            background: transparent;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .action-btn.edit:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .action-btn.delete:hover {
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        /* ===== CHARTS ===== */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .chart-container {
+            height: 300px;
+            width: 100%;
+            position: relative;
+        }
+
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 6, 23, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--dark);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--light);
+        }
+
+        /* ===== TOAST NOTIFICATION ===== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--dark);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 350px;
+            box-shadow: var(--shadow-lg);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--secondary);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .toast.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .toast-icon {
+            font-size: 1.25rem;
+        }
+
+        .toast.success .toast-icon { color: var(--secondary); }
+        .toast.error .toast-icon { color: var(--danger); }
+        .toast.warning .toast-icon { color: var(--warning); }
+
+        /* ===== MOBILE MENU ===== */
+        .mobile-menu-btn {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            background: transparent;
+            color: var(--light);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            z-index: 101;
+        }
+
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 99;
+            backdrop-filter: blur(3px);
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 100;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            
+            .mobile-menu-btn {
+                display: flex;
+            }
+            
+            .mobile-overlay.active {
+                display: block;
+            }
+            
+            .form-container,
+            .transactions-section,
+            .chart-card {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            html { 
+                font-size: 14px; 
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+            
+            .search-box {
+                max-width: 100%;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: stretch;
+            }
+            
+            .header-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+            
+            .transactions-table {
+                min-width: 500px;
+            }
+            
+            .transactions-table th,
+            .transactions-table td {
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .transaction-actions {
+                flex-direction: row;
+            }
+            
+            .toast {
+                max-width: calc(100vw - 40px);
+                width: auto;
+            }
+            
+            .type-selector {
+                flex-direction: column;
+            }
+            
+            .type-option {
+                min-height: 50px;
+            }
+            
+            .quick-amounts {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .main-header {
+                padding: 1rem 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            html { 
+                font-size: 13px; 
+            }
+            
+            .main-content {
+                padding: 0.75rem;
+            }
+            
+            .form-container,
+            .transactions-section,
+            .chart-card {
+                padding: 0.75rem;
+            }
+            
+            .filters {
+                justify-content: center;
+            }
+            
+            .quick-amounts {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .transactions-table {
+                font-size: 0.875rem;
+                min-width: 400px;
+            }
+            
+            .transaction-type {
+                padding: 3px 8px;
+                font-size: 0.7rem;
+            }
+            
+            .action-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 0.875rem;
+            }
+            
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.875rem;
+            }
+            
+            .btn-lg {
+                padding: 12px 20px;
+            }
+            
+            .stat-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.25rem;
+            }
+            
+            .modal-content {
+                margin: 0.5rem;
+            }
+            
+            .modal-header,
+            .modal-body {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .quick-amounts {
+                grid-template-columns: 1fr;
+            }
+            
+            .type-selector {
+                gap: 0.5rem;
+            }
+            
+            .type-option {
+                padding: 0.75rem;
+                min-height: 45px;
+            }
+            
+            .stat-value {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* ===== LOADING STATES ===== */
+        .loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.05), 
+                transparent);
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* ===== EMPTY STATES ===== */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* ===== PRINT STYLES ===== */
+        @media print {
+            .sidebar,
+            .header-actions,
+            .action-btn,
+            .mobile-menu-btn {
+                display: none !important;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 0;
+            }
+            
+            body {
+                background: white;
+                color: black;
+            }
+            
+            .stat-card,
+            .form-container,
+            .transactions-section {
+                border: 1px solid #ddd;
+                box-shadow: none;
+            }
+        }
+
+        /* ===== DARK/LIGHT THEME SUPPORT ===== */
+        @media (prefers-color-scheme: light) {
+            body.light-theme {
+                --dark: #f1f5f9;
+                --darker: #e2e8f0;
+                --light: #0f172a;
+                --gray: #64748b;
+                --gray-dark: #475569;
+                --card-bg: rgba(255, 255, 255, 0.8);
+                --card-border: rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        /* ===== PWA INSTALL PROMPT ===== */
+        .pwa-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            border: 1px solid var(--primary);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            max-width: 500px;
+            width: calc(100% - 2rem);
+        }
+
+        .pwa-prompt.hidden {
+            display: none;
+        }
+
+        .pwa-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        /* ===== FIXED BUGS STYLES ===== */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* ===== ACCESSIBILITY ===== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        /* ===== CUSTOM SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        /* ===== FOOTER ===== */
+        .app-footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        /* ===== FIXES FOR OTHER PAGES ===== */
+        .page-content {
+            min-height: 60vh;
+        }
+
+        .page-placeholder {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--gray);
+        }
+
+        .page-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.3;
+        }
+
+        .page-placeholder h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--light);
+        }
+
+        .page-placeholder p {
+            max-width: 500px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+
+        /* ===== TABLE RESPONSIVE FIXES ===== */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 1rem;
+        }
+
+        /* ===== IMPROVED FORM LAYOUT ===== */
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-col {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        /* ===== IMPROVED BUTTON LAYOUT ===== */
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        /* ===== BADGE STYLES ===== */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--secondary);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        /* ===== IMPROVED INPUT STYLES ===== */
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: stretch;
+            width: 100%;
+        }
+
+        .input-group .form-input {
+            flex: 1;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .input-group-append {
+            display: flex;
+        }
+
+        .input-group-append .btn {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        /* ===== CARD HOVER EFFECTS ===== */
+        .card-hover {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* ===== SMOOTH TRANSITIONS ===== */
+        .smooth-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===== FIX FOR SMALL SCREENS ===== */
+        .text-truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .text-wrap {
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+
+        /* ===== GRID IMPROVEMENTS ===== */
+        .grid-auto-fit {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: 1rem;
+        }
+
+        /* ===== IMPROVED SPACING ===== */
+        .gap-1 { gap: 0.5rem; }
+        .gap-2 { gap: 1rem; }
+        .gap-3 { gap: 1.5rem; }
+        .gap-4 { gap: 2rem; }
+    </style>
+</head>
+<body>
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- PWA Install Prompt -->
+    <div class="pwa-prompt hidden" id="pwaPrompt">
+        <div>
+            <strong>Pasang Aplikasi</strong>
+            <p style="font-size: 0.875rem; margin-top: 4px; color: var(--gray);">
+                Pasang Money Tracker untuk akses lebih cepat
+            </p>
+        </div>
+        <div class="pwa-actions">
+            <button class="btn btn-sm btn-outline" id="pwaCancel">Nanti</button>
+            <button class="btn btn-sm btn-primary" id="pwaInstall">Pasang</button>
+        </div>
+    </div>
+
+    <div class="app-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>Money Tracker</h2>
+                    <p>Kelola keuanganmu</p>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-page="transactions">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transaksi</span>
+                </a>
+                <a href="#" class="nav-item" data-page="analytics">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Analisis</span>
+                </a>
+                <a href="#" class="nav-item" data-page="budget">
+                    <i class="fas fa-wallet"></i>
+                    <span>Anggaran</span>
+                </a>
+                <a href="#" class="nav-item" data-page="goals">
+                    <i class="fas fa-bullseye"></i>
+                    <span>Target</span>
+                </a>
+                <a href="#" class="nav-item" data-page="reports">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Laporan</span>
+                </a>
+                <a href="#" class="nav-item" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Pengaturan</span>
+                </a>
+            </nav>
+
+            <div class="mt-4">
+                <div class="stat-card">
+                    <div class="stat-title">Transaksi Bulan Ini</div>
+                    <div class="stat-value" id="sidebarTransactionCount">0</div>
+                    <div class="stat-change positive" id="sidebarTransactionChange">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>0%</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div style="margin-left: 1rem;">
+                        <h1 id="pageTitle">Dashboard</h1>
+                        <p id="currentDate">Loading...</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline" id="exportBtn">
+                        <i class="fas fa-file-export"></i>
+                        <span class="hidden-mobile">Export</span>
+                    </button>
+                    <button class="btn btn-primary" id="addTransactionBtn">
+                        <i class="fas fa-plus"></i>
+                        <span class="hidden-mobile">Tambah Transaksi</span>
+                        <span class="visible-mobile">Tambah</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div id="dashboardPage" class="page-content">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card balance">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div>
+                                <div class="stat-title">Saldo Total</div>
+                                <div class="stat-value" id="totalBalance">Rp 0</div>
+                            </div>
+                        </div>
+                        <div class="stat-change positive" id="balanceChange">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+0% dari bulan lalu</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card income">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div>
+                                <div class="stat-title">Pemasukan</div>
+                                <div class="stat-value" id="totalIncome">Rp 0</div>
+                            </div>
+                        </div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span id="incomeChange">+0 transaksi</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card expense">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div>
+                                <div class="stat-title">Pengeluaran</div>
+                                <div class="stat-value" id="totalExpense">Rp 0</div>
+                            </div>
+                        </div>
+                        <div class="stat-change negative">
+                            <i class="fas fa-arrow-up"></i>
+                            <span id="expenseChange">+0 transaksi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Add Form -->
+                <div class="form-container">
+                    <h3 class="form-title">
+                        <i class="fas fa-plus-circle"></i>
+                        Tambah Transaksi Cepat
+                    </h3>
+                    <form id="quickTransactionForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-tag"></i>
+                                    Nama Transaksi
+                                </label>
+                                <input type="text" class="form-input" id="quickName" 
+                                       placeholder="Contoh: Beli Kopi" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    Jumlah (Rp)
+                                </label>
+                                <input type="number" class="form-input" id="quickAmount" 
+                                       placeholder="0" min="0" step="1000" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-folder"></i>
+                                    Kategori
+                                </label>
+                                <select class="form-select" id="quickCategory">
+                                    <option value="Makanan">🍔 Makanan</option>
+                                    <option value="Transportasi">🚗 Transportasi</option>
+                                    <option value="Belanja">🛍 Belanja</option>
+                                    <option value="Hiburan">🎬 Hiburan</option>
+                                    <option value="Tagihan">🧾 Tagihan</option>
+                                    <option value="Gaji">💼 Gaji</option>
+                                    <option value="Investasi">📈 Investasi</option>
+                                    <option value="Lainnya">🔘 Lainnya</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="type-selector">
+                            <button type="button" class="type-option income active" data-type="income">
+                                <i class="fas fa-arrow-down"></i>
+                                <span>Pemasukan</span>
+                            </button>
+                            <button type="button" class="type-option expense" data-type="expense">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>Pengeluaran</span>
+                            </button>
+                        </div>
+
+                        <div class="quick-amounts">
+                            <button type="button" class="quick-amount" data-amount="10000">Rp 10K</button>
+                            <button type="button" class="quick-amount" data-amount="25000">Rp 25K</button>
+                            <button type="button" class="quick-amount" data-amount="50000">Rp 50K</button>
+                            <button type="button" class="quick-amount" data-amount="100000">Rp 100K</button>
+                            <button type="button" class="quick-amount" data-amount="200000">Rp 200K</button>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mt-3">
+                            <i class="fas fa-save"></i>
+                            Simpan Transaksi
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="transactions-section">
+                    <div class="section-header">
+                        <h3>Transaksi Terbaru</h3>
+                        <div class="filters">
+                            <button class="filter-btn active" data-filter="all">Semua</button>
+                            <button class="filter-btn" data-filter="income">Pemasukan</button>
+                            <button class="filter-btn" data-filter="expense">Pengeluaran</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="transactions-table">
+                            <thead>
+                                <tr>
+                                    <th>Deskripsi</th>
+                                    <th>Kategori</th>
+                                    <th>Tipe</th>
+                                    <th>Tanggal</th>
+                                    <th>Jumlah</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentTransactions">
+                                <!-- Transactions will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="charts-grid mt-4">
+                    <div class="chart-card">
+                        <h3 class="mb-2">Pengeluaran per Kategori</h3>
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3 class="mb-2">Trend Bulan Ini</h3>
+                        <div class="chart-container">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Pages -->
+            <div id="transactionsPage" class="page-content hidden">
+                <div class="transactions-section">
+                    <div class="section-header">
+                        <h3>Semua Transaksi</h3>
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="search-input" id="searchTransactions" 
+                                   placeholder="Cari transaksi...">
+                        </div>
+                    </div>
+                    
+                    <div class="filters mb-3">
+                        <button class="filter-btn active" data-filter="all">Semua</button>
+                        <button class="filter-btn" data-filter="income">Pemasukan</button>
+                        <button class="filter-btn" data-filter="expense">Pengeluaran</button>
+                        <select class="form-select" id="categoryFilter" style="min-width: 150px;">
+                            <option value="">Semua Kategori</option>
+                        </select>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="transactions-table">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Deskripsi</th>
+                                    <th>Kategori</th>
+                                    <th>Tipe</th>
+                                    <th>Jumlah</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allTransactions">
+                                <!-- All transactions will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-3 text-center" id="pagination">
+                        <!-- Pagination will be added here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Pages Content -->
+            <div id="analyticsPage" class="page-content hidden">
+                <div class="page-placeholder">
+                    <i class="fas fa-chart-pie"></i>
+                    <h2>Analisis Keuangan</h2>
+                    <p>Lihat tren pengeluaran dan pemasukan Anda dengan visualisasi data yang interaktif.</p>
+                    <button class="btn btn-primary" onclick="MoneyTracker.switchPage('dashboard')">
+                        <i class="fas fa-chart-line"></i>
+                        Lihat Dashboard
+                    </button>
+                </div>
+            </div>
+
+            <div id="budgetPage" class="page-content hidden">
+                <div class="page-placeholder">
+                    <i class="fas fa-wallet"></i>
+                    <h2>Manajemen Anggaran</h2>
+                    <p>Atur anggaran bulanan Anda dan pantau pengeluaran agar tidak melebihi batas.</p>
+                    <button class="btn btn-primary" onclick="MoneyTracker.openTransactionModal()">
+                        <i class="fas fa-plus"></i>
+                        Tambah Transaksi
+                    </button>
+                </div>
+            </div>
+
+            <div id="goalsPage" class="page-content hidden">
+                <div class="page-placeholder">
+                    <i class="fas fa-bullseye"></i>
+                    <h2>Target Keuangan</h2>
+                    <p>Buat target keuangan dan lacak progres Anda mencapainya.</p>
+                    <button class="btn btn-primary" onclick="MoneyTracker.showToast('Fitur Target akan segera hadir!', 'info')">
+                        <i class="fas fa-info-circle"></i>
+                        Info
+                    </button>
+                </div>
+            </div>
+
+            <div id="reportsPage" class="page-content hidden">
+                <div class="page-placeholder">
+                    <i class="fas fa-file-alt"></i>
+                    <h2>Laporan Keuangan</h2>
+                    <p>Generate laporan keuangan bulanan, triwulan, atau tahunan dengan data lengkap.</p>
+                    <button class="btn btn-primary" onclick="MoneyTracker.exportData()">
+                        <i class="fas fa-file-export"></i>
+                        Export Data
+                    </button>
+                </div>
+            </div>
+
+            <div id="settingsPage" class="page-content hidden">
+                <div class="form-container">
+                    <h3 class="form-title">
+                        <i class="fas fa-cog"></i>
+                        Pengaturan
+                    </h3>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">Mata Uang</label>
+                        <select class="form-select" id="currencySetting">
+                            <option value="IDR">Rupiah (IDR)</option>
+                            <option value="USD">Dollar (USD)</option>
+                            <option value="EUR">Euro (EUR)</option>
+                            <option value="SGD">Dollar Singapura (SGD)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">Tema</label>
+                        <select class="form-select" id="themeSetting">
+                            <option value="dark">Gelap</option>
+                            <option value="light">Terang</option>
+                            <option value="auto">Otomatis</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">
+                            <input type="checkbox" id="autoBackupSetting" style="margin-right: 8px;">
+                            Auto Backup
+                        </label>
+                        <small style="color: var(--gray); display: block; margin-top: 4px;">
+                            Simpan data otomatis setiap perubahan
+                        </small>
+                    </div>
+                    
+                    <div class="form-group mb-4">
+                        <label class="form-label">
+                            <input type="checkbox" id="notificationsSetting" style="margin-right: 8px;" checked>
+                            Notifikasi
+                        </label>
+                        <small style="color: var(--gray); display: block; margin-top: 4px;">
+                            Tampilkan notifikasi untuk transaksi penting
+                        </small>
+                    </div>
+                    
+                    <button class="btn btn-primary w-100 mb-2" onclick="MoneyTracker.saveSettings()">
+                        <i class="fas fa-save"></i>
+                        Simpan Pengaturan
+                    </button>
+                    
+                    <button class="btn btn-outline w-100 mb-2" onclick="MoneyTracker.clearAllData()">
+                        <i class="fas fa-trash"></i>
+                        Hapus Semua Data
+                    </button>
+                    
+                    <button class="btn btn-outline w-100" onclick="MoneyTracker.loadSampleData()">
+                        <i class="fas fa-download"></i>
+                        Load Data Contoh
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="transactionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Tambah Transaksi</h3>
+                <button class="close-btn" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="transactionForm">
+                    <input type="hidden" id="editId">
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">Nama Transaksi</label>
+                        <input type="text" class="form-input" id="transactionName" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Jumlah (Rp)</label>
+                        <input type="number" class="form-input" id="transactionAmount" 
+                               min="0" step="1000" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Kategori</label>
+                        <select class="form-select" id="transactionCategory" required>
+                            <option value="">Pilih kategori</option>
+                            <option value="Gaji">💼 Gaji</option>
+                            <option value="Investasi">📈 Investasi</option>
+                            <option value="Freelance">💻 Freelance</option>
+                            <option value="Makanan">🍔 Makanan</option>
+                            <option value="Transportasi">🚗 Transportasi</option>
+                            <option value="Belanja">🛍 Belanja</option>
+                            <option value="Hiburan">🎬 Hiburan</option>
+                            <option value="Kesehatan">🏥 Kesehatan</option>
+                            <option value="Pendidikan">📚 Pendidikan</option>
+                            <option value="Tagihan">🧾 Tagihan</option>
+                            <option value="Lainnya">🔘 Lainnya</option>
+                        </select>
+                    </div>
+
+                    <div class="type-selector mb-3">
+                        <button type="button" class="type-option income active" data-type="income">
+                            <i class="fas fa-arrow-down"></i>
+                            Pemasukan
+                        </button>
+                        <button type="button" class="type-option expense" data-type="expense">
+                            <i class="fas fa-arrow-up"></i>
+                            Pengeluaran
+                        </button>
+                    </div>
+                    <input type="hidden" id="transactionType" value="income">
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Tanggal</label>
+                        <input type="date" class="form-input" id="transactionDate" required>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label">Catatan (Opsional)</label>
+                        <textarea class="form-textarea" id="transactionNote" 
+                                  placeholder="Tambahkan catatan..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-save"></i>
+                        Simpan Transaksi
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Konfirmasi</h3>
+                <button class="close-btn" data-action="cancel">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Apakah Anda yakin?</p>
+                <div class="flex gap-2" style="margin-top: 1.5rem;">
+                    <button class="btn btn-outline w-100" data-action="cancel">
+                        Batal
+                    </button>
+                    <button class="btn btn-primary w-100" data-action="confirm">
+                        Ya, Lanjutkan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="app-footer">
+        <p>© 2026 Money Tracker Pro. Pakai Uang Anda Dengan Bijak.</p>
+        <p style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--gray);">
+            <i class="fas fa-shield-alt"></i> Data aman • 
+            <i class="fas fa-sync-alt"></i> Auto-save • 
+            <i class="fas fa-mobile-alt"></i> Responsif
+        </p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    // ===== GLOBAL VARIABLES =====
+    const MoneyTracker = {
+        // Data storage
+        transactions: [],
+        settings: {
+            currency: 'IDR',
+            theme: 'dark',
+            autoBackup: true,
+            notifications: true
+        },
+        
+        // State
+        currentPage: 'dashboard',
+        editingTransaction: null,
+        charts: {},
+        currentTransactionPage: 1,
+        transactionsPerPage: 10,
+        
+        // DOM Elements
+        elements: {},
+        
+        // Initialize
+        init() {
+            this.cacheElements();
+            this.loadData();
+            this.setupEventListeners();
+            this.updateUI();
+            this.setupCharts();
+            this.updateCurrentDate();
+            
+            // Add CSS for mobile visibility
+            this.addMobileStyles();
+            
+            // Set global reference
+            window.MoneyTracker = this;
+            
+            console.log('Money Tracker initialized');
+        },
+        
+        // Cache DOM elements
+        cacheElements() {
+            this.elements = {
+                // Pages
+                pages: document.querySelectorAll('.page-content'),
+                
+                // Navigation
+                navItems: document.querySelectorAll('.nav-item'),
+                mobileMenuBtn: document.getElementById('mobileMenuBtn'),
+                mobileOverlay: document.getElementById('mobileOverlay'),
+                sidebar: document.getElementById('sidebar'),
+                
+                // Forms
+                quickForm: document.getElementById('quickTransactionForm'),
+                transactionForm: document.getElementById('transactionForm'),
+                
+                // Inputs
+                quickName: document.getElementById('quickName'),
+                quickAmount: document.getElementById('quickAmount'),
+                quickCategory: document.getElementById('quickCategory'),
+                transactionName: document.getElementById('transactionName'),
+                transactionAmount: document.getElementById('transactionAmount'),
+                transactionCategory: document.getElementById('transactionCategory'),
+                transactionType: document.getElementById('transactionType'),
+                transactionDate: document.getElementById('transactionDate'),
+                transactionNote: document.getElementById('transactionNote'),
+                
+                // Buttons
+                addTransactionBtn: document.getElementById('addTransactionBtn'),
+                exportBtn: document.getElementById('exportBtn'),
+                closeModal: document.getElementById('closeModal'),
+                
+                // Modals
+                transactionModal: document.getElementById('transactionModal'),
+                confirmModal: document.getElementById('confirmModal'),
+                
+                // Stats
+                totalBalance: document.getElementById('totalBalance'),
+                totalIncome: document.getElementById('totalIncome'),
+                totalExpense: document.getElementById('totalExpense'),
+                balanceChange: document.getElementById('balanceChange'),
+                incomeChange: document.getElementById('incomeChange'),
+                expenseChange: document.getElementById('expenseChange'),
+                
+                // Tables
+                recentTransactions: document.getElementById('recentTransactions'),
+                allTransactions: document.getElementById('allTransactions'),
+                
+                // Search
+                searchTransactions: document.getElementById('searchTransactions'),
+                categoryFilter: document.getElementById('categoryFilter'),
+                
+                // Charts
+                categoryChart: document.getElementById('categoryChart'),
+                trendChart: document.getElementById('trendChart'),
+                
+                // Toast
+                toastContainer: document.getElementById('toastContainer'),
+                
+                // PWA
+                pwaPrompt: document.getElementById('pwaPrompt'),
+                pwaInstall: document.getElementById('pwaInstall'),
+                pwaCancel: document.getElementById('pwaCancel'),
+                
+                // Settings
+                currencySetting: document.getElementById('currencySetting'),
+                themeSetting: document.getElementById('themeSetting'),
+                autoBackupSetting: document.getElementById('autoBackupSetting'),
+                notificationsSetting: document.getElementById('notificationsSetting'),
+                
+                // Sidebar
+                sidebarTransactionCount: document.getElementById('sidebarTransactionCount'),
+                sidebarTransactionChange: document.getElementById('sidebarTransactionChange')
+            };
+        },
+        
+        // Setup event listeners
+        setupEventListeners() {
+            // Navigation
+            this.elements.navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = item.dataset.page;
+                    this.switchPage(page);
+                    this.closeMobileMenu();
+                });
+            });
+            
+            // Mobile menu
+            this.elements.mobileMenuBtn.addEventListener('click', () => this.toggleMobileMenu());
+            this.elements.mobileOverlay.addEventListener('click', () => this.closeMobileMenu());
+            
+            // Add transaction button
+            this.elements.addTransactionBtn.addEventListener('click', () => this.openTransactionModal());
+            
+            // Export button
+            this.elements.exportBtn.addEventListener('click', () => this.exportData());
+            
+            // Close modal
+            this.elements.closeModal.addEventListener('click', () => this.closeTransactionModal());
+            
+            // Quick form submission
+            this.elements.quickForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.saveQuickTransaction();
+            });
+            
+            // Main form submission
+            this.elements.transactionForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.saveTransaction();
+            });
+            
+            // Quick amount buttons
+            document.querySelectorAll('.quick-amount').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const amount = parseInt(btn.dataset.amount);
+                    this.elements.quickAmount.value = amount;
+                    if (this.elements.transactionAmount) {
+                        this.elements.transactionAmount.value = amount;
+                    }
+                });
+            });
+            
+            // Type selector buttons
+            document.querySelectorAll('.type-option').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const type = option.dataset.type;
+                    const container = option.closest('.type-selector');
+                    
+                    // Update UI
+                    container.querySelectorAll('.type-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    option.classList.add('active');
+                    
+                    // Update hidden input
+                    const form = container.closest('form');
+                    if (form) {
+                        const typeInput = form.querySelector('#transactionType');
+                        if (typeInput) {
+                            typeInput.value = type;
+                        }
+                    }
+                });
+            });
+            
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const filter = btn.dataset.filter;
+                    const container = btn.closest('.filters');
+                    
+                    // Update active button
+                    container.querySelectorAll('.filter-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    btn.classList.add('active');
+                    
+                    // Filter transactions
+                    if (this.currentPage === 'dashboard') {
+                        this.filterRecentTransactions(filter);
+                    } else if (this.currentPage === 'transactions') {
+                        this.currentTransactionPage = 1;
+                        this.filterAllTransactions();
+                    }
+                });
+            });
+            
+            // Search transactions
+            if (this.elements.searchTransactions) {
+                this.elements.searchTransactions.addEventListener('input', () => {
+                    this.currentTransactionPage = 1;
+                    this.filterAllTransactions();
+                });
+            }
+            
+            // Category filter
+            if (this.elements.categoryFilter) {
+                this.elements.categoryFilter.addEventListener('change', () => {
+                    this.currentTransactionPage = 1;
+                    this.filterAllTransactions();
+                });
+            }
+            
+            // Confirmation modal
+            document.querySelectorAll('#confirmModal [data-action]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const action = btn.dataset.action;
+                    if (action === 'confirm' && this.confirmCallback) {
+                        this.confirmCallback();
+                    }
+                    this.closeConfirmModal();
+                });
+            });
+            
+            // Close modal on overlay click
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        if (modal.id === 'transactionModal') {
+                            this.closeTransactionModal();
+                        } else if (modal.id === 'confirmModal') {
+                            this.closeConfirmModal();
+                        }
+                    }
+                });
+            });
+            
+            // PWA buttons
+            if (this.elements.pwaInstall) {
+                this.elements.pwaInstall.addEventListener('click', () => this.installPWA());
+            }
+            if (this.elements.pwaCancel) {
+                this.elements.pwaCancel.addEventListener('click', () => this.hidePWAPrompt());
+            }
+            
+            // Window resize
+            window.addEventListener('resize', () => this.handleResize());
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                    e.preventDefault();
+                    this.openTransactionModal();
+                }
+                
+                if (e.key === 'Escape') {
+                    if (this.elements.transactionModal.classList.contains('active')) {
+                        this.closeTransactionModal();
+                    }
+                    if (this.elements.confirmModal.classList.contains('active')) {
+                        this.closeConfirmModal();
+                    }
+                }
+            });
+        },
+        
+        // ===== DATA MANAGEMENT =====
+        loadData() {
+            try {
+                // Load transactions
+                const storedTransactions = localStorage.getItem('moneyTracker_transactions');
+                this.transactions = storedTransactions ? JSON.parse(storedTransactions) : [];
+                
+                // Load settings
+                const storedSettings = localStorage.getItem('moneyTracker_settings');
+                this.settings = storedSettings ? JSON.parse(storedSettings) : {
+                    currency: 'IDR',
+                    theme: 'dark',
+                    autoBackup: true,
+                    notifications: true
+                };
+                
+                // Apply settings
+                this.applySettings();
+                
+                // If no data, load sample data
+                if (this.transactions.length === 0) {
+                    this.loadSampleData();
+                }
+                
+                console.log(`Loaded ${this.transactions.length} transactions`);
+            } catch (error) {
+                console.error('Error loading data:', error);
+                this.showToast('Error loading data', 'error');
+                this.transactions = [];
+            }
+        },
+        
+        loadSampleData() {
+            const now = new Date();
+            const sampleTransactions = [
+                {
+                    id: this.generateId(),
+                    name: "Gaji Bulanan",
+                    amount: 7500000,
+                    category: "Gaji",
+                    type: "income",
+                    date: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
+                    createdAt: new Date().toISOString(),
+                    note: "Gaji bulan Januari"
+                },
+                {
+                    id: this.generateId(),
+                    name: "Belanja Bulanan",
+                    amount: 2500000,
+                    category: "Belanja",
+                    type: "expense",
+                    date: new Date(now.getFullYear(), now.getMonth(), 5).toISOString(),
+                    createdAt: new Date().toISOString(),
+                    note: "Belanja kebutuhan bulanan"
+                },
+                {
+                    id: this.generateId(),
+                    name: "Bayar Listrik",
+                    amount: 450000,
+                    category: "Tagihan",
+                    type: "expense",
+                    date: new Date(now.getFullYear(), now.getMonth(), 10).toISOString(),
+                    createdAt: new Date().toISOString(),
+                    note: "Tagihan PLN"
+                },
+                {
+                    id: this.generateId(),
+                    name: "Freelance Project",
+                    amount: 3000000,
+                    category: "Freelance",
+                    type: "income",
+                    date: new Date(now.getFullYear(), now.getMonth(), 15).toISOString(),
+                    createdAt: new Date().toISOString(),
+                    note: "Project website client"
+                },
+                {
+                    id: this.generateId(),
+                    name: "Makan di Restoran",
+                    amount: 150000,
+                    category: "Makanan",
+                    type: "expense",
+                    date: new Date(now.getFullYear(), now.getMonth(), 20).toISOString(),
+                    createdAt: new Date().toISOString(),
+                    note: "Dinner keluarga"
+                }
+            ];
+            
+            this.transactions = sampleTransactions;
+            this.saveToLocalStorage();
+            this.updateUI();
+            this.showToast('Data contoh berhasil dimuat!', 'success');
+        },
+        
+        saveToLocalStorage() {
+            try {
+                localStorage.setItem('moneyTracker_transactions', JSON.stringify(this.transactions));
+                localStorage.setItem('moneyTracker_settings', JSON.stringify(this.settings));
+                
+                if (this.settings.autoBackup) {
+                    console.log('Auto backup completed');
+                }
+            } catch (error) {
+                console.error('Error saving data:', error);
+                this.showToast('Error saving data', 'error');
+            }
+        },
+        
+        applySettings() {
+            // Apply theme
+            document.body.classList.remove('light-theme');
+            if (this.settings.theme === 'light') {
+                document.body.classList.add('light-theme');
+            } else if (this.settings.theme === 'auto') {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                    document.body.classList.add('light-theme');
+                }
+            }
+            
+            // Update settings form
+            if (this.elements.currencySetting) {
+                this.elements.currencySetting.value = this.settings.currency || 'IDR';
+            }
+            if (this.elements.themeSetting) {
+                this.elements.themeSetting.value = this.settings.theme || 'dark';
+            }
+            if (this.elements.autoBackupSetting) {
+                this.elements.autoBackupSetting.checked = this.settings.autoBackup !== false;
+            }
+            if (this.elements.notificationsSetting) {
+                this.elements.notificationsSetting.checked = this.settings.notifications !== false;
+            }
+        },
+        
+        saveSettings() {
+            this.settings = {
+                currency: this.elements.currencySetting.value,
+                theme: this.elements.themeSetting.value,
+                autoBackup: this.elements.autoBackupSetting.checked,
+                notifications: this.elements.notificationsSetting.checked
+            };
+            
+            this.saveToLocalStorage();
+            this.applySettings();
+            this.showToast('Pengaturan berhasil disimpan!', 'success');
+        },
+        
+        clearAllData() {
+            this.showConfirm(
+                'Hapus semua data? Tindakan ini tidak dapat dibatalkan.',
+                () => {
+                    this.transactions = [];
+                    this.saveToLocalStorage();
+                    this.updateUI();
+                    this.showToast('Semua data berhasil dihapus', 'success');
+                }
+            );
+        },
+        
+        generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        },
+        
+        // ===== TRANSACTION MANAGEMENT =====
+        saveQuickTransaction() {
+            const name = this.elements.quickName.value.trim();
+            const amount = parseFloat(this.elements.quickAmount.value) || 0;
+            const category = this.elements.quickCategory.value;
+            const typeElement = document.querySelector('#quickTransactionForm .type-option.active');
+            const type = typeElement ? typeElement.dataset.type : 'expense';
+            
+            // Validasi
+            if (!name || name === '') {
+                this.showToast('Nama transaksi harus diisi!', 'error');
+                return;
+            }
+            
+            if (!amount || amount <= 0 || isNaN(amount)) {
+                this.showToast('Jumlah harus lebih dari 0!', 'error');
+                return;
+            }
+            
+            const transaction = {
+                id: this.generateId(),
+                name: name,
+                amount: amount,
+                category: category,
+                type: type,
+                date: new Date().toISOString(),
+                createdAt: new Date().toISOString()
+            };
+            
+            this.transactions.unshift(transaction);
+            this.saveToLocalStorage();
+            this.updateUI();
+            
+            // Reset form
+            this.elements.quickName.value = '';
+            this.elements.quickAmount.value = '';
+            
+            this.showToast('Transaksi berhasil ditambahkan!', 'success');
+        },
+        
+        saveTransaction() {
+            const id = document.getElementById('editId').value;
+            const name = this.elements.transactionName.value.trim();
+            const amount = parseFloat(this.elements.transactionAmount.value) || 0;
+            const category = this.elements.transactionCategory.value;
+            const type = this.elements.transactionType.value;
+            const date = this.elements.transactionDate.value;
+            const note = this.elements.transactionNote.value.trim();
+            
+            // Validasi
+            if (!name || name === '') {
+                this.showToast('Nama transaksi harus diisi!', 'error');
+                return;
+            }
+            
+            if (!amount || amount <= 0 || isNaN(amount)) {
+                this.showToast('Jumlah harus lebih dari 0!', 'error');
+                return;
+            }
+            
+            if (!category || category === '') {
+                this.showToast('Kategori harus dipilih!', 'error');
+                return;
+            }
+            
+            if (!date || date === '') {
+                this.showToast('Tanggal harus diisi!', 'error');
+                return;
+            }
+            
+            const transaction = {
+                id: id || this.generateId(),
+                name: name,
+                amount: amount,
+                category: category,
+                type: type,
+                date: new Date(date).toISOString(),
+                note: note,
+                createdAt: id ? this.transactions.find(t => t.id === id)?.createdAt || new Date().toISOString() : new Date().toISOString()
+            };
+            
+            if (id) {
+                // Edit existing transaction
+                const index = this.transactions.findIndex(t => t.id === id);
+                if (index !== -1) {
+                    this.transactions[index] = transaction;
+                    this.showToast('Transaksi berhasil diperbarui!', 'success');
+                }
+            } else {
+                // Add new transaction
+                this.transactions.unshift(transaction);
+                this.showToast('Transaksi berhasil ditambahkan!', 'success');
+            }
+            
+            this.saveToLocalStorage();
+            this.updateUI();
+            this.closeTransactionModal();
+        },
+        
+        editTransaction(id) {
+            const transaction = this.transactions.find(t => t.id === id);
+            if (!transaction) return;
+            
+            this.editingTransaction = transaction;
+            
+            // Fill form
+            document.getElementById('editId').value = transaction.id;
+            this.elements.transactionName.value = transaction.name;
+            this.elements.transactionAmount.value = transaction.amount;
+            this.elements.transactionCategory.value = transaction.category;
+            this.elements.transactionType.value = transaction.type;
+            
+            // Format date for input
+            const dateObj = new Date(transaction.date);
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            this.elements.transactionDate.value = `${year}-${month}-${day}`;
+            
+            this.elements.transactionNote.value = transaction.note || '';
+            
+            // Update type selector in modal
+            document.querySelectorAll('#transactionModal .type-option').forEach(opt => {
+                opt.classList.remove('active');
+                if (opt.dataset.type === transaction.type) {
+                    opt.classList.add('active');
+                }
+            });
+            
+            // Update modal title
+            document.getElementById('modalTitle').textContent = 'Edit Transaksi';
+            
+            this.openTransactionModal();
+        },
+        
+        deleteTransaction(id) {
+            this.showConfirm(
+                'Hapus transaksi ini?',
+                () => {
+                    this.transactions = this.transactions.filter(t => t.id !== id);
+                    this.saveToLocalStorage();
+                    this.updateUI();
+                    this.showToast('Transaksi berhasil dihapus', 'success');
+                }
+            );
+        },
+        
+        filterRecentTransactions(filter) {
+            let filtered = [...this.transactions];
+            
+            if (filter === 'income') {
+                filtered = filtered.filter(t => t.type === 'income');
+            } else if (filter === 'expense') {
+                filtered = filtered.filter(t => t.type === 'expense');
+            }
+            
+            // Sort by date (newest first)
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            this.renderRecentTransactions(filtered.slice(0, 5));
+        },
+        
+        filterAllTransactions() {
+            const searchTerm = this.elements.searchTransactions ? this.elements.searchTransactions.value.toLowerCase() : '';
+            const categoryFilter = this.elements.categoryFilter ? this.elements.categoryFilter.value : '';
+            const typeFilter = document.querySelector('#transactionsPage .filter-btn.active')?.dataset.filter || 'all';
+            
+            let filtered = [...this.transactions];
+            
+            // Filter by search term
+            if (searchTerm) {
+                filtered = filtered.filter(t => 
+                    t.name.toLowerCase().includes(searchTerm) || 
+                    t.category.toLowerCase().includes(searchTerm) ||
+                    (t.note && t.note.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            // Filter by category
+            if (categoryFilter) {
+                filtered = filtered.filter(t => t.category === categoryFilter);
+            }
+            
+            // Filter by type
+            if (typeFilter === 'income') {
+                filtered = filtered.filter(t => t.type === 'income');
+            } else if (typeFilter === 'expense') {
+                filtered = filtered.filter(t => t.type === 'expense');
+            }
+            
+            // Update category filter options
+            this.updateCategoryFilterOptions();
+            
+            // Sort by date (newest first)
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Render filtered transactions
+            this.renderAllTransactions(filtered);
+        },
+        
+        updateCategoryFilterOptions() {
+            if (!this.elements.categoryFilter) return;
+            
+            const currentValue = this.elements.categoryFilter.value;
+            const categories = [...new Set(this.transactions.map(t => t.category))].sort();
+            
+            // Clear existing options except the first one
+            while (this.elements.categoryFilter.options.length > 1) {
+                this.elements.categoryFilter.remove(1);
+            }
+            
+            // Add category options
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                this.elements.categoryFilter.appendChild(option);
+            });
+            
+            // Restore selected value if it exists
+            if (categories.includes(currentValue)) {
+                this.elements.categoryFilter.value = currentValue;
+            }
+        },
+        
+        // ===== UI UPDATES =====
+        updateUI() {
+            this.updateStats();
+            this.renderRecentTransactions();
+            this.updateCharts();
+            this.updateSidebarStats();
+            
+            if (this.currentPage === 'transactions') {
+                this.filterAllTransactions();
+            }
+        },
+        
+        updateStats() {
+            let income = 0;
+            let expense = 0;
+            let lastMonthIncome = 0;
+            let lastMonthExpense = 0;
+            
+            // Calculate totals for current month and last month
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+            const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+            
+            this.transactions.forEach(transaction => {
+                const date = new Date(transaction.date);
+                const transMonth = date.getMonth();
+                const transYear = date.getFullYear();
+                
+                if (transMonth === currentMonth && transYear === currentYear) {
+                    if (transaction.type === 'income') {
+                        income += parseFloat(transaction.amount) || 0;
+                    } else {
+                        expense += parseFloat(transaction.amount) || 0;
+                    }
+                }
+                
+                if (transMonth === lastMonth && transYear === lastMonthYear) {
+                    if (transaction.type === 'income') {
+                        lastMonthIncome += parseFloat(transaction.amount) || 0;
+                    } else {
+                        lastMonthExpense += parseFloat(transaction.amount) || 0;
+                    }
+                }
+            });
+            
+            const balance = income - expense;
+            const lastMonthBalance = lastMonthIncome - lastMonthExpense;
+            
+            // Format currency dengan validasi
+            const formatCurrency = (amount) => {
+                // Pastikan amount adalah number
+                const numAmount = parseFloat(amount) || 0;
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0
+                }).format(numAmount);
+            };
+            
+            // Update DOM dengan validasi
+            if (this.elements.totalBalance) {
+                this.elements.totalBalance.textContent = formatCurrency(balance);
+            }
+            if (this.elements.totalIncome) {
+                this.elements.totalIncome.textContent = formatCurrency(income);
+            }
+            if (this.elements.totalExpense) {
+                this.elements.totalExpense.textContent = formatCurrency(expense);
+            }
+            
+            // Update changes dengan validasi
+            if (this.elements.balanceChange) {
+                const balanceChangeValue = lastMonthBalance !== 0 ? 
+                    ((balance - lastMonthBalance) / Math.abs(lastMonthBalance) * 100) : 
+                    balance > 0 ? 100 : 0;
+                
+                const isPositive = balanceChangeValue >= 0;
+                const displayChange = isNaN(balanceChangeValue) ? 0 : Math.abs(balanceChangeValue);
+                
+                this.elements.balanceChange.innerHTML = `
+                    <i class="fas fa-arrow-${isPositive ? 'up' : 'down'}"></i>
+                    <span>${isPositive ? '+' : '-'}${displayChange.toFixed(1)}% dari bulan lalu</span>
+                `;
+                this.elements.balanceChange.className = `stat-change ${isPositive ? 'positive' : 'negative'}`;
+            }
+            
+            // Calculate transaction counts
+            const currentMonthIncomeCount = this.transactions.filter(t => {
+                const date = new Date(t.date);
+                return t.type === 'income' && 
+                       date.getMonth() === currentMonth && 
+                       date.getFullYear() === currentYear;
+            }).length;
+            
+            const currentMonthExpenseCount = this.transactions.filter(t => {
+                const date = new Date(t.date);
+                return t.type === 'expense' && 
+                       date.getMonth() === currentMonth && 
+                       date.getFullYear() === currentYear;
+            }).length;
+            
+            if (this.elements.incomeChange) {
+                this.elements.incomeChange.textContent = `${currentMonthIncomeCount} transaksi`;
+            }
+            if (this.elements.expenseChange) {
+                this.elements.expenseChange.textContent = `${currentMonthExpenseCount} transaksi`;
+            }
+        },
+        
+        renderRecentTransactions(transactions = null) {
+            const tbody = this.elements.recentTransactions;
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            let dataToRender = transactions;
+            if (!dataToRender) {
+                dataToRender = [...this.transactions]
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .slice(0, 5);
+            }
+            
+            if (dataToRender.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center" style="padding: 2rem;">
+                            <div class="empty-state">
+                                <i class="fas fa-receipt"></i>
+                                <p>Belum ada transaksi</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            dataToRender.forEach(transaction => {
+                // Validasi date
+                let dateStr = 'Invalid Date';
+                try {
+                    const date = new Date(transaction.date);
+                    if (!isNaN(date.getTime())) {
+                        dateStr = date.toLocaleDateString('id-ID', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                        });
+                    }
+                } catch (e) {
+                    console.error('Error parsing date:', e);
+                }
+                
+                // Format amount dengan validasi
+                let amountDisplay = 'Rp0';
+                try {
+                    const amountNum = parseFloat(transaction.amount) || 0;
+                    amountDisplay = new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        minimumFractionDigits: 0
+                    }).format(amountNum);
+                } catch (e) {
+                    console.error('Error formatting amount:', e);
+                }
+                
+                const row = document.createElement('tr');
+                row.className = 'transaction-row animate-slide-in';
+                row.innerHTML = `
+                    <td>
+                        <strong>${this.escapeHtml(transaction.name)}</strong>
+                        ${transaction.note ? `<br><small style="color: var(--gray);">${this.escapeHtml(transaction.note)}</small>` : ''}
+                    </td>
+                    <td>${this.escapeHtml(transaction.category)}</td>
+                    <td>
+                        <span class="transaction-type ${transaction.type}">
+                            <i class="fas fa-arrow-${transaction.type === 'income' ? 'down' : 'up'}"></i>
+                            ${transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}
+                        </span>
+                    </td>
+                    <td>${dateStr}</td>
+                    <td class="transaction-amount ${transaction.type === 'income' ? 'text-success' : 'text-danger'}">
+                        ${transaction.type === 'income' ? '+' : '-'} ${amountDisplay}
+                    </td>
+                    <td>
+                        <div class="transaction-actions">
+                            <button class="action-btn edit" onclick="MoneyTracker.editTransaction('${transaction.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete" onclick="MoneyTracker.deleteTransaction('${transaction.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        },
+        
+        renderAllTransactions(transactions = this.transactions) {
+            const tbody = this.elements.allTransactions;
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            if (transactions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center" style="padding: 2rem;">
+                            <div class="empty-state">
+                                <i class="fas fa-receipt"></i>
+                                <p>Tidak ada transaksi yang sesuai</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Pagination
+            const totalPages = Math.ceil(transactions.length / this.transactionsPerPage);
+            const startIndex = (this.currentTransactionPage - 1) * this.transactionsPerPage;
+            const endIndex = startIndex + this.transactionsPerPage;
+            const paginatedTransactions = transactions.slice(startIndex, endIndex);
+            
+            paginatedTransactions.forEach(transaction => {
+                // Validasi date
+                let dateStr = 'Invalid Date';
+                try {
+                    const date = new Date(transaction.date);
+                    if (!isNaN(date.getTime())) {
+                        dateStr = date.toLocaleDateString('id-ID', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                        });
+                    }
+                } catch (e) {
+                    console.error('Error parsing date:', e);
+                }
+                
+                // Format amount dengan validasi
+                let amountDisplay = 'Rp0';
+                try {
+                    const amountNum = parseFloat(transaction.amount) || 0;
+                    amountDisplay = new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        minimumFractionDigits: 0
+                    }).format(amountNum);
+                } catch (e) {
+                    console.error('Error formatting amount:', e);
+                }
+                
+                const row = document.createElement('tr');
+                row.className = 'transaction-row animate-slide-in';
+                row.innerHTML = `
+                    <td>${dateStr}</td>
+                    <td>
+                        <strong>${this.escapeHtml(transaction.name)}</strong>
+                        ${transaction.note ? `<br><small style="color: var(--gray);">${this.escapeHtml(transaction.note)}</small>` : ''}
+                    </td>
+                    <td>${this.escapeHtml(transaction.category)}</td>
+                    <td>
+                        <span class="transaction-type ${transaction.type}">
+                            <i class="fas fa-arrow-${transaction.type === 'income' ? 'down' : 'up'}"></i>
+                            ${transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}
+                        </span>
+                    </td>
+                    <td class="transaction-amount ${transaction.type === 'income' ? 'text-success' : 'text-danger'}">
+                        ${transaction.type === 'income' ? '+' : '-'} ${amountDisplay}
+                    </td>
+                    <td>
+                        <div class="transaction-actions">
+                            <button class="action-btn edit" onclick="MoneyTracker.editTransaction('${transaction.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete" onclick="MoneyTracker.deleteTransaction('${transaction.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // Update pagination
+            this.updatePagination(totalPages);
+        },
+        
+        updatePagination(totalPages) {
+            const paginationContainer = document.getElementById('pagination');
+            if (!paginationContainer || totalPages <= 1) {
+                if (paginationContainer) {
+                    paginationContainer.innerHTML = '';
+                }
+                return;
+            }
+            
+            let paginationHTML = '<div class="btn-group">';
+            
+            // Previous button
+            if (this.currentTransactionPage > 1) {
+                paginationHTML += `
+                    <button class="btn btn-outline btn-sm" onclick="MoneyTracker.changeTransactionPage(${this.currentTransactionPage - 1})">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                `;
+            }
+            
+            // Page numbers
+            const maxVisible = 3;
+            let startPage = Math.max(1, this.currentTransactionPage - Math.floor(maxVisible / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+            
+            if (endPage - startPage + 1 < maxVisible) {
+                startPage = Math.max(1, endPage - maxVisible + 1);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === this.currentTransactionPage) {
+                    paginationHTML += `<button class="btn btn-primary btn-sm">${i}</button>`;
+                } else {
+                    paginationHTML += `
+                        <button class="btn btn-outline btn-sm" onclick="MoneyTracker.changeTransactionPage(${i})">
+                            ${i}
+                        </button>
+                    `;
+                }
+            }
+            
+            // Next button
+            if (this.currentTransactionPage < totalPages) {
+                paginationHTML += `
+                    <button class="btn btn-outline btn-sm" onclick="MoneyTracker.changeTransactionPage(${this.currentTransactionPage + 1})">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                `;
+            }
+            
+            paginationHTML += '</div>';
+            paginationContainer.innerHTML = paginationHTML;
+        },
+        
+        changeTransactionPage(page) {
+            this.currentTransactionPage = page;
+            this.filterAllTransactions();
+            // Scroll to top of table
+            const table = document.querySelector('.transactions-section');
+            if (table) {
+                table.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        },
+        
+        updateSidebarStats() {
+            const now = new Date();
+            const thisMonth = now.getMonth();
+            const thisYear = now.getFullYear();
+            
+            const thisMonthCount = this.transactions.filter(t => {
+                try {
+                    const date = new Date(t.date);
+                    return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
+                } catch (e) {
+                    return false;
+                }
+            }).length;
+            
+            // Calculate last month count for comparison
+            const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+            const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
+            
+            const lastMonthCount = this.transactions.filter(t => {
+                try {
+                    const date = new Date(t.date);
+                    return date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear;
+                } catch (e) {
+                    return false;
+                }
+            }).length;
+            
+            // Calculate percentage change with validation
+            let change = 0;
+            if (lastMonthCount > 0) {
+                change = ((thisMonthCount - lastMonthCount) / lastMonthCount * 100);
+            } else if (thisMonthCount > 0) {
+                change = 100;
+            }
+            
+            // Update DOM
+            if (this.elements.sidebarTransactionCount) {
+                this.elements.sidebarTransactionCount.textContent = thisMonthCount;
+            }
+            
+            if (this.elements.sidebarTransactionChange) {
+                const isPositive = change >= 0;
+                const displayChange = isNaN(change) ? 0 : Math.abs(change);
+                
+                this.elements.sidebarTransactionChange.innerHTML = `
+                    <i class="fas fa-arrow-${isPositive ? 'up' : 'down'}"></i>
+                    <span>${isPositive ? '+' : ''}${displayChange.toFixed(1)}%</span>
+                `;
+                this.elements.sidebarTransactionChange.className = `stat-change ${isPositive ? 'positive' : 'negative'}`;
+            }
+        },
+        
+        updateCurrentDate() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            const dateString = now.toLocaleDateString('id-ID', options);
+            const dateElement = document.getElementById('currentDate');
+            if (dateElement) {
+                dateElement.textContent = dateString;
+            }
+        },
+        
+        // ===== CHARTS =====
+        setupCharts() {
+            // Category Chart
+            const categoryCtx = this.elements.categoryChart?.getContext('2d');
+            if (categoryCtx) {
+                this.charts.category = new Chart(categoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Makanan', 'Transportasi', 'Belanja', 'Tagihan', 'Lainnya'],
+                        datasets: [{
+                            data: [0, 0, 0, 0, 0],
+                            backgroundColor: [
+                                '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#f8fafc',
+                                    padding: 20,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Trend Chart
+            const trendCtx = this.elements.trendChart?.getContext('2d');
+            if (trendCtx) {
+                this.charts.trend = new Chart(trendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4'],
+                        datasets: [
+                            {
+                                label: 'Pemasukan',
+                                data: [0, 0, 0, 0],
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Pengeluaran',
+                                data: [0, 0, 0, 0],
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#f8fafc'
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#94a3b8'
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#94a3b8',
+                                    callback: function(value) {
+                                        return 'Rp' + value.toLocaleString('id-ID');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            this.updateCharts();
+        },
+        
+        updateCharts() {
+            // Update category chart (expenses only)
+            if (this.charts.category) {
+                const now = new Date();
+                const currentMonth = now.getMonth();
+                const currentYear = now.getFullYear();
+                
+                // Initialize category totals
+                const categories = {
+                    'Makanan': 0,
+                    'Transportasi': 0,
+                    'Belanja': 0,
+                    'Tagihan': 0,
+                    'Lainnya': 0
+                };
+                
+                // Calculate totals for current month expenses
+                this.transactions.forEach(transaction => {
+                    try {
+                        const date = new Date(transaction.date);
+                        if (transaction.type === 'expense' && 
+                            date.getMonth() === currentMonth && 
+                            date.getFullYear() === currentYear) {
+                            
+                            const amount = parseFloat(transaction.amount) || 0;
+                            if (categories.hasOwnProperty(transaction.category)) {
+                                categories[transaction.category] += amount;
+                            } else {
+                                categories['Lainnya'] += amount;
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error processing transaction for chart:', e);
+                    }
+                });
+                
+                // Update chart data
+                this.charts.category.data.datasets[0].data = [
+                    categories['Makanan'],
+                    categories['Transportasi'],
+                    categories['Belanja'],
+                    categories['Tagihan'],
+                    categories['Lainnya']
+                ];
+                
+                this.charts.category.update();
+            }
+            
+            // Update trend chart (monthly overview)
+            if (this.charts.trend) {
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                const currentMonth = now.getMonth();
+                
+                // Initialize weekly totals
+                const weeklyIncome = [0, 0, 0, 0];
+                const weeklyExpense = [0, 0, 0, 0];
+                
+                this.transactions.forEach(transaction => {
+                    try {
+                        const date = new Date(transaction.date);
+                        if (date.getFullYear() === currentYear && date.getMonth() === currentMonth) {
+                            const amount = parseFloat(transaction.amount) || 0;
+                            const week = Math.min(Math.floor((date.getDate() - 1) / 7), 3);
+                            
+                            if (transaction.type === 'income') {
+                                weeklyIncome[week] += amount;
+                            } else {
+                                weeklyExpense[week] += amount;
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error processing transaction for trend chart:', e);
+                    }
+                });
+                
+                this.charts.trend.data.datasets[0].data = weeklyIncome;
+                this.charts.trend.data.datasets[1].data = weeklyExpense;
+                this.charts.trend.update();
+            }
+        },
+        
+        // ===== MODAL MANAGEMENT =====
+        openTransactionModal() {
+            // Set today's date as default
+            if (!this.editingTransaction) {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                this.elements.transactionDate.value = `${year}-${month}-${day}`;
+                
+                document.getElementById('editId').value = '';
+                document.getElementById('modalTitle').textContent = 'Tambah Transaksi';
+                
+                // Reset form
+                this.elements.transactionName.value = '';
+                this.elements.transactionAmount.value = '';
+                this.elements.transactionCategory.value = '';
+                this.elements.transactionNote.value = '';
+                
+                // Reset type selector to income
+                document.querySelectorAll('#transactionModal .type-option').forEach(opt => {
+                    opt.classList.remove('active');
+                    if (opt.dataset.type === 'income') {
+                        opt.classList.add('active');
+                    }
+                });
+                this.elements.transactionType.value = 'income';
+            }
+            
+            this.elements.transactionModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        },
+        
+        closeTransactionModal() {
+            this.elements.transactionModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            this.editingTransaction = null;
+            
+            // Reset form
+            this.elements.transactionForm.reset();
+        },
+        
+        showConfirm(message, callback) {
+            this.confirmCallback = callback;
+            document.getElementById('confirmMessage').textContent = message;
+            this.elements.confirmModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        },
+        
+        closeConfirmModal() {
+            this.elements.confirmModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            this.confirmCallback = null;
+        },
+        
+        // ===== NAVIGATION =====
+        switchPage(page) {
+            this.currentPage = page;
+            
+            // Update active nav item
+            this.elements.navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.page === page) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Show active page
+            this.elements.pages.forEach(p => {
+                p.classList.add('hidden');
+                if (p.id === `${page}Page`) {
+                    p.classList.remove('hidden');
+                }
+            });
+            
+            // Update page title
+            const titles = {
+                dashboard: 'Dashboard',
+                transactions: 'Transaksi',
+                analytics: 'Analisis',
+                budget: 'Anggaran',
+                goals: 'Target',
+                reports: 'Laporan',
+                settings: 'Pengaturan'
+            };
+            
+            const pageTitle = document.getElementById('pageTitle');
+            if (pageTitle) {
+                pageTitle.textContent = titles[page] || 'Dashboard';
+            }
+            
+            // Reset transaction page for transactions page
+            if (page === 'transactions') {
+                this.currentTransactionPage = 1;
+                this.filterAllTransactions();
+            }
+            
+            // Close mobile menu on navigation
+            if (window.innerWidth <= 992) {
+                this.closeMobileMenu();
+            }
+        },
+        
+        // ===== MOBILE MENU =====
+        toggleMobileMenu() {
+            this.elements.sidebar.classList.toggle('active');
+            this.elements.mobileOverlay.classList.toggle('active');
+            document.body.style.overflow = this.elements.sidebar.classList.contains('active') ? 'hidden' : 'auto';
+        },
+        
+        closeMobileMenu() {
+            this.elements.sidebar.classList.remove('active');
+            this.elements.mobileOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        },
+        
+        handleResize() {
+            if (window.innerWidth > 992) {
+                this.closeMobileMenu();
+            }
+        },
+        
+        // ===== EXPORT/IMPORT =====
+        exportData() {
+            const data = {
+                transactions: this.transactions,
+                settings: this.settings,
+                exportDate: new Date().toISOString(),
+                version: '1.0'
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `money-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            this.showToast('Data berhasil diekspor!', 'success');
+        },
+        
+        // ===== NOTIFICATIONS =====
+        showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: 'check-circle',
+                error: 'exclamation-circle',
+                warning: 'exclamation-triangle',
+                info: 'info-circle'
+            };
+            
+            toast.innerHTML = `
+                <i class="fas fa-${icons[type] || 'info-circle'} toast-icon"></i>
+                <span>${this.escapeHtml(message)}</span>
+            `;
+            
+            if (this.elements.toastContainer) {
+                this.elements.toastContainer.appendChild(toast);
+            }
+            
+            // Show toast
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        },
+        
+        // ===== UTILITY FUNCTIONS =====
+        escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        },
+        
+        addMobileStyles() {
+            // Add mobile-specific styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .hidden-mobile { display: inline; }
+                .visible-mobile { display: none; }
+                
+                @media (max-width: 768px) {
+                    .hidden-mobile { display: none !important; }
+                    .visible-mobile { display: inline !important; }
+                    
+                    .btn span:not(.visible-mobile) {
+                        display: none;
+                    }
+                    
+                    .btn i {
+                        margin-right: 0 !important;
+                    }
+                }
+                
+                @media (max-width: 480px) {
+                    .transactions-table td:nth-child(3),
+                    .transactions-table th:nth-child(3) {
+                        display: none;
+                    }
+                    
+                    .transaction-amount {
+                        font-size: 0.875rem;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        },
+        
+        // ===== PWA SUPPORT =====
+        installPWA() {
+            if (window.deferredPrompt) {
+                window.deferredPrompt.prompt();
+                window.deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        this.showToast('Menginstall aplikasi...', 'success');
+                    }
+                    window.deferredPrompt = null;
+                });
+            }
+        },
+        
+        hidePWAPrompt() {
+            if (this.elements.pwaPrompt) {
+                this.elements.pwaPrompt.classList.add('hidden');
+            }
+        }
+    };
+
+    // Initialize the app
+    document.addEventListener('DOMContentLoaded', () => {
+        MoneyTracker.init();
+        
+        // PWA installation prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            window.deferredPrompt = e;
+            
+            // Show install prompt after 5 seconds
+            setTimeout(() => {
+                if (window.deferredPrompt && MoneyTracker.elements.pwaPrompt) {
+                    MoneyTracker.elements.pwaPrompt.classList.remove('hidden');
+                }
+            }, 5000);
+        });
+    });
+</script>
+</body>
+</html>
